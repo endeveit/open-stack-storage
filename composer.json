@@ -1,0 +1,23 @@
+{
+    "name": "endeveit/OpenStackStorage",
+    "type": "library",
+    "description": "The port of python-cloudfiles library to work with OpenStack Object Storage",
+    "keywords": ["openstack", "storage", "guzzle"],
+    "homepage": "http://github.com/endeveit/OpenStackStorage",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nikita Vershinin",
+            "email": "endeveit@gmail.com",
+            "homepage": "http://endeveit.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "guzzle/guzzle": "dev-master",
+        "symfony/event-dispatcher": "dev-master"
+    },
+    "autoload": {
+        "psr-0": { "OpenStackStorage": "lib/" }
+    }
+}
