@@ -1,10 +1,15 @@
 <?php
+/**
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author Nikita Vershinin <endeveit@gmail.com>
+ * @license MIT
+ */
 namespace OpenStackStorage\Exceptions;
 
 /**
- * Исключение, бросаемое при попытке задать неверное название объекта.
- *
- * @author Nikita Vershinin <endeveit@gmail.com>
+ * Raised for invalid storage object names.
  */
 class InvalidObjectName extends Error
 {

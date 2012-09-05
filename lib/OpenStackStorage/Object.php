@@ -1,12 +1,17 @@
 <?php
+/**
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author Nikita Vershinin <endeveit@gmail.com>
+ * @license MIT
+ */
 namespace OpenStackStorage;
 
 use Guzzle\Http\Message\RequestInterface;
 
 /**
  * Storage data representing an object, (metadata and data).
- *
- * @author Nikita Vershinin <endeveit@gmail.com>
  */
 class Object
 {
@@ -82,10 +87,10 @@ class Object
      *
      * Instead, use the OpenStackStorage\Container object methods:
      * <code>
-     * <?php
      * $container->createObject('test.txt');
      * $container->getObject('test.txt');
      * $container->getObjects('test.txt');
+     * </code>
      *
      * @param Container $container
      * @param string $name
@@ -343,7 +348,6 @@ class Object
      *
      * Example:
      * <code>
-     * <?php
      * $object = $container->getObject('paradise_lost.pdf);
      * $object->setMetadata(array('author' => 'John Milton'));
      * $object->setHeaders(array('content-disposition' => 'foo'));
@@ -377,7 +381,6 @@ class Object
      *
      * Example:
      * <code>
-     * <?php
      * $object = $container->getObject('paradise_lost.pdf);
      * $object->setManifest('container/prefix');
      * $object->syncManifest();
@@ -449,7 +452,6 @@ class Object
      *
      * Example:
      * <code>
-     * <?php
      * $object1->purgeFromCdn();
      * $object2->purgeFromCdn('user@example.com');
      * $object3->purgeFromCdn('user@example.com,user@example.org);

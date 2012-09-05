@@ -1,4 +1,11 @@
 <?php
+/**
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author Nikita Vershinin <endeveit@gmail.com>
+ * @license MIT
+ */
 namespace OpenStackStorage;
 
 use Guzzle\Http\Client;
@@ -14,8 +21,6 @@ define('META_VALUE_LIMIT',     256);
 /**
  * Manages the connection to the storage system and serves as a factory
  * for Container instances.
- *
- * @author Nikita Vershinin <endeveit@gmail.com>
  */
 class Connection
 {
@@ -282,11 +287,9 @@ class Connection
      *
      * Example:
      * <code>
-     * <?php
      * $connection->updateAccountMetadata(array(
-     *  'X-Account-Meta-Foo' => 'bar',
+     *     'X-Account-Meta-Foo' => 'bar',
      * ));
-     * ?>
      * </code>
      *
      * @param array $metadata

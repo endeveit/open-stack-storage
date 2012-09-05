@@ -1,4 +1,11 @@
 <?php
+/**
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author Nikita Vershinin <endeveit@gmail.com>
+ * @license MIT
+ */
 namespace OpenStackStorage;
 
 use Guzzle\Http\Message\RequestInterface;
@@ -9,8 +16,6 @@ use Guzzle\Http\Message\RequestInterface;
  *
  * If your account has the feature enabled, containers can be publically
  * shared over a global content delivery network.
- *
- * @author Nikita Vershinin <endeveit@gmail.com>
  */
 class Container
 {
@@ -129,7 +134,6 @@ class Container
      *
      * Instead, use the OpenStackStorage\Connection object methods:
      * <code>
-     * <?php
      * $connection->createContainer('test');
      * $connection->getContainer('test');
      * $connection->getContainers();
@@ -209,9 +213,8 @@ class Container
      *
      * Example:
      * <code>
-     * <?php
      * $container->updateMetadata(array(
-     *  'X-Container-Meta-Foo' => 'bar',
+     *     'X-Container-Meta-Foo' => 'bar',
      * ));
      * </code>
      *
@@ -231,7 +234,6 @@ class Container
      *
      * Example:
      * <code>
-     * <?php
      * $container->enableStaticWeb('index.html', true, 'error.html', 'style.css');
      * </code>
      *
@@ -356,7 +358,6 @@ class Container
      * job completes.
      *
      * <code>
-     * <?php
      * $container1->purgeFromCdn();
      * $container2->purgeFromCdn('user@example.com');
      * $container3->purgeFromCdn('user@example.com,user@example.org);
@@ -411,7 +412,6 @@ class Container
      *
      * Example:
      * <code>
-     * <?php
      * $container->isPublic(); // false
      * $container->makePublic();
      * $container->isPublic(); // true
@@ -435,7 +435,6 @@ class Container
      *
      * Example:
      * <code>
-     * <?php
      * echo $container->getPublicUri();
      * // Outputs "http://c00061.cdn.cloudfiles.rackspacecloud.com"
      * </code>
@@ -458,7 +457,6 @@ class Container
      *
      * Example:
      * <code>
-     * <?php
      * echo $container->getPublicSslUri();
      * // Outputs "https://c61.ssl.cf0.rackcdn.com"
      * </code>
@@ -481,7 +479,6 @@ class Container
      *
      * Example:
      * <code>
-     * <?php
      * echo $container->getPublicStreamingUri();
      * // Outputs "https://c61.stream.rackcdn.com"
      * </code>
