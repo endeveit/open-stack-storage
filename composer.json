@@ -17,6 +17,6 @@
         "guzzle/guzzle": "*"
     },
     "autoload": {
-        "psr-0": { "OpenStackStorage": "lib/" }
+        "psr-0": { "OpenStackStorage": "src/" }
     }
 }
