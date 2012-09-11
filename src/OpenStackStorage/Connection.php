@@ -20,7 +20,7 @@ define('META_VALUE_LIMIT',     256);
 
 /**
  * Manages the connection to the storage system and serves as a factory
- * for Container instances.
+ * for \OpenStackStorage\Container instances.
  */
 class Connection
 {
@@ -49,7 +49,7 @@ class Connection
     /**
      * Authentication object.
      *
-     * @var Authentication
+     * @var \OpenStackStorage\Authentication
      */
     protected $auth = null;
 
@@ -234,7 +234,7 @@ class Connection
      *                        URI string
      * @param array  $headers additional headers
      * @return \Guzzle\Http\Message\Response
-     * @throws Exceptions\CDNNotEnabled
+     * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
      */
     public function makeCdnRequest($method, array $path = array(), array $headers = array())
     {
@@ -303,12 +303,12 @@ class Connection
      * Create new container.
      *
      * If $errorOnExisting is true and container already exists,
-     * throws Exceptions\ContainerExists.
+     * throws \OpenStackStorage\Exceptions\ContainerExists.
      *
      * @param string  $name
      * @param boolean $errorOnExisting
-     * @return Container
-     * @throws Exceptions\ContainerExists
+     * @return \OpenStackStorage\Container
+     * @throws \OpenStackStorage\Exceptions\ContainerExists
      */
     public function createContainer($name, $errorOnExisting = false)
     {
@@ -325,10 +325,10 @@ class Connection
     /**
      * Delete container.
      *
-     * @param Container|string $container
-     * @throws Exceptions\NoSuchContainer
-     * @throws Exceptions\ResponseError
-     * @throws Exceptions\ContainerNotEmpty
+     * @param \OpenStackStorage\Container|string $container
+     * @throws \OpenStackStorage\Exceptions\NoSuchContainer
+     * @throws \OpenStackStorage\Exceptions\ResponseError
+     * @throws \OpenStackStorage\Exceptions\ContainerNotEmpty
      */
     public function deleteContainer($container)
     {
@@ -372,9 +372,9 @@ class Connection
      * Return container object.
      *
      * @param string $name
-     * @return Container
-     * @throws Exceptions\NoSuchContainer
-     * @throws Exceptions\ResponseError
+     * @return \OpenStackStorage\Container
+     * @throws \OpenStackStorage\Exceptions\NoSuchContainer
+     * @throws \OpenStackStorage\Exceptions\ResponseError
      */
     public function getContainer($name)
     {
@@ -411,7 +411,7 @@ class Connection
      * Return array with containers.
      *
      * @param array $parameters
-     * @return Container[]
+     * @return \OpenStackStorage\Container[]
      */
     public function getContainers(array $parameters = array())
     {
@@ -433,7 +433,7 @@ class Connection
      * Return names of public containers.
      *
      * @return array
-     * @throws Exceptions\CDNNotEnabled
+     * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
      */
     public function getPublicContainersList()
     {
@@ -450,7 +450,7 @@ class Connection
     /**
      * Return information about containers.
      *
-     * @see Connection::$allowedParameters
+     * @see \OpenStackStorage\Connection::$allowedParameters
      * @param array $parameters
      * @return array
      */
@@ -464,7 +464,7 @@ class Connection
     /**
      * Return names of containers.
      *
-     * @see Connection::$allowedParameters
+     * @see \OpenStackStorage\Connection::$allowedParameters
      * @param array $parameters
      * @return array
      */
@@ -562,7 +562,7 @@ class Connection
      * @param string $path
      * @param array $headers
      * @return \Guzzle\Http\Message\Response
-     * @throws Exceptions\ResponseError
+     * @throws \OpenStackStorage\Exceptions\ResponseError
      * @throws \Guzzle\Http\Exception\ClientErrorResponseException
      * @throws \Exception
      */
@@ -621,7 +621,7 @@ class Connection
      * Validates the container name.
      *
      * @param string $name
-     * @throws Exceptions\InvalidContainerName
+     * @throws \OpenStackStorage\Exceptions\InvalidContainerName
      */
     protected function validateContainerName($name)
     {
@@ -635,7 +635,7 @@ class Connection
     /**
      * Return a raw response string with containers data.
      *
-     * @see Connection::$allowedParameters
+     * @see \OpenStackStorage\Connection::$allowedParameters
      * @param array $parameters
      * @return string
      */

@@ -19,7 +19,7 @@ class Object
     /**
      * Container object.
      *
-     * @var Container
+     * @var \OpenStackStorage\Container
      */
     protected $container = null;
 
@@ -85,18 +85,18 @@ class Object
      * Storage objects rarely if ever need to be instantiated directly by
      * the user.
      *
-     * Instead, use the OpenStackStorage\Container object methods:
+     * Instead, use the \OpenStackStorage\Container object methods:
      * <code>
      * $container->createObject('test.txt');
      * $container->getObject('test.txt');
      * $container->getObjects('test.txt');
      * </code>
      *
-     * @param Container $container
+     * @param \OpenStackStorage\Container $container
      * @param string $name
      * @param boolean $forceExists
      * @param array $objectRecord
-     * @throws Exceptions\NoSuchObject
+     * @throws \OpenStackStorage\Exceptions\NoSuchObject
      */
     public function __construct(Container $container, $name = null, $forceExists = false, array &$objectRecord = array())
     {
@@ -354,7 +354,7 @@ class Object
      * $object->syncMetadata();
      * </code>
      *
-     * @throws Exceptions\ResponseError
+     * @throws \OpenStackStorage\Exceptions\ResponseError
      */
     public function syncMetadata()
     {
@@ -458,7 +458,7 @@ class Object
      * </code>
      *
      * @param string $email
-     * @throws Exceptions\CDNNotEnabled
+     * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
      */
     public function purgeFromCdn($email = null)
     {
@@ -482,7 +482,7 @@ class Object
      * Initialize the object with values from the remote service (if any).
      *
      * @return boolean
-     * @throws Exceptions\ResponseError
+     * @throws \OpenStackStorage\Exceptions\ResponseError
      */
     protected function initialize()
     {
@@ -524,7 +524,7 @@ class Object
      * Validates the object name.
      *
      * @param string $name
-     * @throws Exceptions\InvalidObjectName
+     * @throws \OpenStackStorage\Exceptions\InvalidObjectName
      */
     protected function validateName($name = null)
     {
@@ -542,8 +542,8 @@ class Object
      * respective instance attributes.
      *
      * @return array
-     * @throws Exceptions\InvalidMetaValue
-     * @throws Exceptions\InvalidMetaName
+     * @throws \OpenStackStorage\Exceptions\InvalidMetaValue
+     * @throws \OpenStackStorage\Exceptions\InvalidMetaName
      */
     protected function getNewHeaders()
     {

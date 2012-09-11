@@ -11,7 +11,7 @@ namespace OpenStackStorage;
 use Guzzle\Http\Message\RequestInterface;
 
 /**
- * OpenStackStorage\Container object and OpenStackStorage\Object
+ * \OpenStackStorage\Container object and \OpenStackStorage\Object
  * instance factory.
  *
  * If your account has the feature enabled, containers can be publically
@@ -23,7 +23,7 @@ class Container
     /**
      * Connection object.
      *
-     * @var Connection
+     * @var \OpenStackStorage\Connection
      */
     protected $connection = null;
 
@@ -92,7 +92,8 @@ class Container
     protected $cdnLogRetention = false;
 
     /**
-     * List of parameters that are allowed to be used in the GET-requests to fetch
+     * List of parameters that are allowed to be used in the GET-requests to
+     * fetch
      * information about the objects in this container:
      *  — limit      For an integer value n, limits the number of results to at
      *               most n values.
@@ -132,14 +133,15 @@ class Container
      * Containers will rarely if ever need to be instantiated directly by
      * the user.
      *
-     * Instead, use the OpenStackStorage\Connection object methods:
+     * Instead, use the \OpenStackStorage\OpenStackStorage\Connection
+     * object methods:
      * <code>
      * $connection->createContainer('test');
      * $connection->getContainer('test');
      * $connection->getContainers();
      * </code>
      *
-     * @param Connection $connection
+     * @param \OpenStackStorage\Connection $connection
      * @param string $name
      * @param integer $nbObjects
      * @param integer $sizeUsed
@@ -181,7 +183,7 @@ class Container
     /**
      * Return the value of the $connection property.
      *
-     * @return Connection
+     * @return \OpenStackStorage\Connection
      */
     public function getConnection()
     {
@@ -304,7 +306,7 @@ class Container
      * Requires CDN be enabled on the account.
      *
      * @param integer $ttl cache duration in seconds of the CDN server
-     * @throws Exceptions\CDNNotEnabled
+     * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
      */
     public function makePublic($ttl = 86400)
     {
@@ -336,7 +338,7 @@ class Container
      * Disables CDN access to this container.
      * It may continue to be available until its TTL expires.
      *
-     * @throws Exceptions\CDNNotEnabled
+     * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
      */
     public function makePrivate()
     {
@@ -364,7 +366,7 @@ class Container
      * </code>
      *
      * @param string $email
-     * @throws Exceptions\CDNNotEnabled
+     * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
      */
     public function purgeFromCdn($email = null)
     {
@@ -388,7 +390,7 @@ class Container
      * the account.
      *
      * @param boolean $logRetention
-     * @throws Exceptions\CDNNotEnabled
+     * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
      */
     public function logRetention($logRetention = false)
     {
@@ -418,7 +420,7 @@ class Container
      * </code>
      *
      * @return boolean
-     * @throws Exceptions\CDNNotEnabled
+     * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
      */
     public function isPublic()
     {
@@ -440,7 +442,7 @@ class Container
      * </code>
      *
      * @return string
-     * @throws Exceptions\ContainerNotPublic
+     * @throws \OpenStackStorage\Exceptions\ContainerNotPublic
      */
     public function getPublicUri()
     {
@@ -462,7 +464,7 @@ class Container
      * </code>
      *
      * @return string
-     * @throws Exceptions\ContainerNotPublic
+     * @throws \OpenStackStorage\Exceptions\ContainerNotPublic
      */
     public function getPublicSslUri()
     {
@@ -484,7 +486,7 @@ class Container
      * </code>
      *
      * @return string
-     * @throws Exceptions\ContainerNotPublic
+     * @throws \OpenStackStorage\Exceptions\ContainerNotPublic
      */
     public function getPublicStreamingUri()
     {
@@ -496,14 +498,14 @@ class Container
     }
 
     /**
-     * Return an OpenStackStorage\Object instance, creating it if necessary.
+     * Return an \OpenStackStorage\Object instance, creating it if necessary.
      *
      * When passed the name of an existing object, this method will
      * return an instance of that object, otherwise it will create a
      * new one
      *
      * @param string $name
-     * @return Object
+     * @return \OpenStackStorage\Object
      */
     public function createObject($name)
     {
@@ -511,11 +513,11 @@ class Container
     }
 
     /**
-     * Return an OpenStackStorage\Object instance for an existing storage object.
+     * Return an \OpenStackStorage\Object instance for an existing storage object.
      *
      * @param $name
-     * @return Object
-     * @throws Exceptions\NoSuchObject
+     * @return \OpenStackStorage\Object
+     * @throws \OpenStackStorage\Exceptions\NoSuchObject
      */
     public function getObject($name)
     {
@@ -525,9 +527,9 @@ class Container
     /**
      * Return array with objects of container.
      *
-     * @see Container::$allowedParameters
+     * @see \OpenStackStorage\Container::$allowedParameters
      * @param array $parameters
-     * @return Object[]
+     * @return \OpenStackStorage\Object[]
      */
     public function getObjects(array $parameters = array())
     {
@@ -543,7 +545,7 @@ class Container
     /**
      * Return information about objects in container.
      *
-     * @see Container::$allowedParameters
+     * @see \OpenStackStorage\Container::$allowedParameters
      * @param array $parameters
      * @return array
      */
@@ -557,7 +559,7 @@ class Container
     /**
      * Return names of objects in container.
      *
-     * @see Container::$allowedParameters
+     * @see \OpenStackStorage\Container::$allowedParameters
      * @param array $parameters
      * @return array
      */
@@ -571,7 +573,7 @@ class Container
     /**
      * Return a raw response string with information about container objects.
      *
-     * @see Container::$allowedParameters
+     * @see \OpenStackStorage\Container::$allowedParameters
      * @param array $parameters
      * @return string
      */

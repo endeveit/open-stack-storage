@@ -23,7 +23,7 @@ class Utils
      * @static
      * @param string $url
      * @return array
-     * @throws Exceptions\InvalidUrl
+     * @throws \OpenStackStorage\Exceptions\InvalidUrl
      */
     public static function parseUrl($url)
     {

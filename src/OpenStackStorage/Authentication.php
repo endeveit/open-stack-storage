@@ -65,9 +65,9 @@ class Authentication
      * and session token.
      *
      * @return array
-     * @throws Exceptions\AuthenticationFailed
-     * @throws Exceptions\AuthenticationError
-     * @throws Exceptions\ResponseError
+     * @throws \OpenStackStorage\Exceptions\AuthenticationFailed
+     * @throws \OpenStackStorage\Exceptions\AuthenticationError
+     * @throws \OpenStackStorage\Exceptions\ResponseError
      */
     public function authenticate()
     {
