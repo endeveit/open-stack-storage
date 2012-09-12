@@ -196,6 +196,16 @@ class Connection
     }
 
     /**
+     * Return the value of the $timeout property.
+     *
+     * @return integer
+     */
+    public function getTimeout()
+    {
+        return $this->timeout;
+    }
+
+    /**
      * Return the value of the $userAgent property.
      *
      * @return string
@@ -492,7 +502,7 @@ class Connection
         return sprintf(
             '/%s/%s',
             rtrim($this->connectionUrlInfo['path'], '/'),
-            implode('/', $tmp)
+            str_replace('%2F', '/', implode('/', $tmp))
         );
     }
 

@@ -8,7 +8,9 @@
  */
 namespace OpenStackStorage;
 
+use Guzzle\Http\Curl\CurlHandle;
 use Guzzle\Http\Message\RequestInterface;
+use Guzzle\Http\Message\Response;
 
 /**
  * Storage data representing an object, (metadata and data).
@@ -279,39 +281,42 @@ class Object
      *  — null (can be used to create directories when
      *    $contentType = 'application/directory')
      *
-     * @param mixed $source
+     * @param mixed $data
      * @param string $contentType
-     * @throws \InvalidArgumentException
+     * @param integer $filesize
+     * @throws \OpenStackStorage\Exceptions\Error
      */
-    public function write($source, $contentType = 'application/octet-stream')
+    public function write($data, $contentType = null, $filesize = null)
     {
         $this->validateName();
 
-        $data = null;
         $path = null;
 
-        if (is_resource($source)) {
-            $meta = stream_get_meta_data($source);
-            $path = $meta['uri'];
-            $data = stream_get_contents($source);
-        } elseif (is_object($source) && $source instanceof \SplFileObject) {
-            $path = $source->getType();
-            $data = '';
-
-            while (!$source->eof()) {
-                $data .= $source->fgets();
+        if (is_resource($data)) {
+            $meta = stream_get_meta_data($data);
+            if (!$contentType) {
+                $path = $meta['uri'];
             }
-        } elseif (is_scalar($source)) {
-            $data = strval($source);
-        } elseif (null === $source) {
-            $data = '';
+
+            if (!$filesize) {
+                $this->size = filesize($meta['uri']);
+            }
+        } elseif (is_object($data) && $data instanceof \SplFileObject) {
+            $this->size = $data->getSize();
+            $path       = $data->getType();
+            $tmp        = '';
+
+            while (!$data->eof()) {
+                $tmp .= $data->fgets();
+            }
+
+            $data = &$tmp;
+        } else {
+            $data       = strval($data);
+            $this->size = strlen($data);
         }
 
-        if (null === $data) {
-            throw new \InvalidArgumentException();
-        }
-
-        if (null !== $path && is_readable($path)) {
+        if ((null === $contentType) && (null !== $path) && is_readable($path)) {
             $contentType = finfo_file(
                 finfo_open(FILEINFO_MIME_TYPE),
                 $path,
@@ -319,8 +324,9 @@ class Object
             );
         }
 
-        $this->contentType = $contentType;
-        $this->size        = strlen($data);
+        $this->contentType = (!$contentType
+            ? 'application/octet-stream'
+            : $contentType);
 
         $connection = &$this->container->getConnection();
         $headers    = array_merge(
@@ -332,13 +338,18 @@ class Object
         );
         unset($headers['ETag']);
 
-        $response = $connection->getClient()->put(
-            $connection->getPathFromArray(
-                array($this->container->getName(), $this->name)
+        // Make the request with raw cURL, because of slow PUT requests
+        // made with Guzzle
+        $response = $this->getPutResponseViaRawCurl(
+            $connection->getClient()->put(
+                $connection->getPathFromArray(
+                    array($this->container->getName(), $this->name)
+                ),
+                $headers
             ),
-            $headers,
-            $data
-        )->send();
+            $data,
+            $connection->getTimeout()
+        );
 
         $this->etag = $response->getHeader('etag', true);
     }
@@ -578,6 +589,76 @@ class Object
         }
 
         return array_merge($this->headers, $headers);
+    }
+
+    /**
+     * Returns response headers from PUT request, performed with raw cURL.
+     *
+     * @param \Guzzle\Http\Message\RequestInterface $request
+     * @param mixed $data
+     * @param integer $timeout
+     * @return \Guzzle\Http\Message\Response
+     * @throws \OpenStackStorage\Exceptions\Error
+     */
+    protected function getPutResponseViaRawCurl(RequestInterface $request, $data, $timeout = 5)
+    {
+        if (!is_resource($data)) {
+            $data = fopen('data://text/plain,' . urlencode($data), 'r');
+        }
+
+        $ch = $this->getCurlHandlerFromPutRequest($request, $timeout);
+        curl_setopt($ch, CURLOPT_INFILESIZE, $this->size);
+        curl_setopt($ch, CURLOPT_INFILE, $data);
+
+        if (!($message = curl_exec($ch))) {
+            throw new Exceptions\Error(curl_error($ch), curl_errno($ch));
+        }
+
+        $response = Response::fromMessage($message);
+        $response->setInfo(curl_getinfo($ch));
+        curl_close($ch);
+
+        $ed = $request->getClient()->getEventDispatcher();
+        if ($ed->hasListeners('request.complete')) {
+            $ed->dispatch('request.complete', new Event($request, $response));
+        }
+
+        return $response;
+    }
+
+    /**
+     * Returns raw cURL handler to perform \Guzzle\Http\Message\Request.
+     *
+     * @param \Guzzle\Http\Message\RequestInterface $request
+     * @param integer $timeout
+     * @return resource
+     * @throws \OpenStackStorage\Exceptions\Error
+     */
+    protected function getCurlHandlerFromPutRequest(RequestInterface $request, $timeout = 5)
+    {
+        if ($request->getMethod() != RequestInterface::PUT) {
+            throw new Exceptions\Error(
+                'Only PUT requests can be passed to this method'
+            );
+        }
+
+        CurlHandle::factory($request);
+
+        $options = $request->getParams()->get('curl.last_options');
+        $options[CURLOPT_CONNECTTIMEOUT] = $timeout;
+        $options[CURLOPT_TIMEOUT]        = $timeout;
+        $options[CURLOPT_HEADER]         = true;
+        $options[CURLOPT_NOBODY]         = true;
+        $options[CURLOPT_RETURNTRANSFER] = true;
+
+        // Unset Guzzle specific options
+        unset($options[CURLOPT_WRITEFUNCTION]);
+        unset($options[CURLOPT_HEADERFUNCTION]);
+
+        $ch = curl_init();
+        curl_setopt_array($ch, $options);
+
+        return $ch;
     }
 
 }
