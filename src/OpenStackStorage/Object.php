@@ -8,6 +8,7 @@
  */
 namespace OpenStackStorage;
 
+use Guzzle\Common\Event;
 use Guzzle\Http\Curl\CurlHandle;
 use Guzzle\Http\Message\RequestInterface;
 use Guzzle\Http\Message\Response;
@@ -620,7 +621,10 @@ class Object
 
         $ed = $request->getClient()->getEventDispatcher();
         if ($ed->hasListeners('request.complete')) {
-            $ed->dispatch('request.complete', new Event($request, $response));
+            $ed->dispatch(
+                'request.complete',
+                new Event(array('request' => $request, 'response' => $response))
+            );
         }
 
         return $response;
