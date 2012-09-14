@@ -515,13 +515,27 @@ class Container
     /**
      * Return an \OpenStackStorage\Object instance for an existing storage object.
      *
-     * @param $name
+     * @param string $name
      * @return \OpenStackStorage\Object
      * @throws \OpenStackStorage\Exceptions\NoSuchObject
      */
     public function getObject($name)
     {
         return new Object($this, $name, true);
+    }
+
+    /**
+     * Permanently remove a storage object.
+     *
+     * @param string|\OpenStackStorage\Object $name
+     */
+    public function deleteObject($name)
+    {
+        if (is_object($name) && $name instanceof Object) {
+            $name = $name->getName();
+        }
+
+        $this->connection->makeRequest(RequestInterface::DELETE, array($this->name, $name));
     }
 
     /**
