@@ -234,6 +234,8 @@ class Connection
      */
     public function makeRequest($method, array $path = array(), array $headers = array(), array $parameters = array())
     {
+        $this->authenticate();
+
         $path = $this->getPathFromArray($path);
         if (!empty($parameters)) {
             $path .= '?' . http_build_query($parameters);
@@ -254,6 +256,8 @@ class Connection
      */
     public function makeCdnRequest($method, array $path = array(), array $headers = array())
     {
+        $this->authenticate();
+
         if (!$this->getCdnEnabled()) {
             throw new Exceptions\CDNNotEnabled();
         }
@@ -588,8 +592,6 @@ class Connection
      */
     protected function makeRealRequest(Client $client, $method, $path, array $headers = array())
     {
-        $this->authenticate();
-
         $headers = array_merge(
             array(
                 'User-Agent'   => $this->userAgent,
