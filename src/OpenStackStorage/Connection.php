@@ -54,6 +54,13 @@ class Connection
     protected $auth = null;
 
     /**
+     * Authentication has already been processed.
+     *
+     * @var boolean
+     */
+    protected $isAuthenticated = false;
+
+    /**
      * Authentication token.
      *
      * @var string
@@ -162,7 +169,6 @@ class Connection
             $this->userAgent,
             $timeout
         );
-        $this->authenticate();
     }
 
     /**
@@ -511,16 +517,20 @@ class Connection
      */
     protected function authenticate()
     {
-        list($url, $this->cdnUrl, $this->authToken) = $this->auth->authenticate();
-        if ($this->useServicenet) {
-            $url = str_replace('https://', 'https://snet-%s', $url);
-        }
+        if (!$this->isAuthenticated) {
+            list($url, $this->cdnUrl, $this->authToken) = $this->auth->authenticate();
+            if ($this->useServicenet) {
+                $url = str_replace('https://', 'https://snet-%s', $url);
+            }
 
-        $this->connectionUrlInfo = Utils::parseUrl($url);
-        $this->httpConnect();
+            $this->connectionUrlInfo = Utils::parseUrl($url);
+            $this->httpConnect();
 
-        if ($this->cdnUrl) {
-            $this->cdnConnect();
+            if ($this->cdnUrl) {
+                $this->cdnConnect();
+            }
+
+            $this->isAuthenticated = true;
         }
     }
 
@@ -578,6 +588,8 @@ class Connection
      */
     protected function makeRealRequest(Client $client, $method, $path, array $headers = array())
     {
+        $this->authenticate();
+
         $headers = array_merge(
             array(
                 'User-Agent'   => $this->userAgent,
