@@ -103,7 +103,7 @@ class Object
      */
     public function __construct(Container $container, $name = null, $forceExists = false, array &$objectRecord = array())
     {
-        $this->container = &$container;
+        $this->container = $container;
 
         if (!empty($objectRecord)) {
             $this->name         = $objectRecord['name'];
@@ -329,7 +329,7 @@ class Object
             ? 'application/octet-stream'
             : $contentType);
 
-        $connection = &$this->container->getConnection();
+        $connection = $this->container->getConnection();
         $headers    = array_merge(
             array(
                 'User-Agent'   => $connection->getUserAgent(),

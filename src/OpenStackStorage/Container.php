@@ -149,7 +149,7 @@ class Container
      */
     public function __construct(Connection $connection, $name, $nbObjects = 0, $sizeUsed = 0, array $metadata = array())
     {
-        $this->connection = &$connection;
+        $this->connection = $connection;
         $this->name       = $name;
 
         if ($nbObjects > 0) {

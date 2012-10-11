@@ -30,7 +30,7 @@ class ResponseError extends Error
      */
     public function __construct(Response $response)
     {
-        $this->response = &$response;
+        $this->response = $response;
 
         parent::__construct($response->getReasonPhrase(), $response->getStatusCode());
     }
