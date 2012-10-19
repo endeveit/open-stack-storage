@@ -42,10 +42,10 @@ class Authentication
     /**
      * The class constructor.
      *
-     * @param string $username
-     * @param string $apiKey
-     * @param string $url
-     * @param string $userAgent
+     * @param string  $username
+     * @param string  $apiKey
+     * @param string  $url
+     * @param string  $userAgent
      * @param integer $timeout
      */
     public function __construct($username, $apiKey, $url, $userAgent, $timeout = 5)

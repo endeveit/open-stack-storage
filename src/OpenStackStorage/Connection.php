@@ -9,7 +9,6 @@
 namespace OpenStackStorage;
 
 use Guzzle\Http\Client;
-use Guzzle\Http\Exception\BadResponseException;
 use Guzzle\Http\Exception\ClientErrorResponseException;
 use Guzzle\Http\Message\RequestInterface;
 
@@ -133,10 +132,10 @@ class Connection
     /**
      * The class constructor.
      *
-     * @param string $username
-     * @param string $apiKey
-     * @param array $options
-     * @param integer $timeout
+     * @param  string                    $username
+     * @param  string                    $apiKey
+     * @param  array                     $options
+     * @param  integer                   $timeout
      * @throws \InvalidArgumentException
      */
     public function __construct($username, $apiKey, $options = array(), $timeout = 5)
@@ -224,11 +223,11 @@ class Connection
     /**
      * Performs an http request to the storage.
      *
-     * @param string $method     name of the method (i.e. GET, PUT, POST, etc)
-     * @param array  $path       list of tokens that will be added to connection
+     * @param string $method name of the method (i.e. GET, PUT, POST, etc)
+     * @param array  $path   list of tokens that will be added to connection
      *                           URI string
-     * @param array  $headers    additional headers
-     * @param array  $parameters additional parameters that will be added to the
+     * @param array $headers    additional headers
+     * @param array $parameters additional parameters that will be added to the
      *                           query string
      * @return \Guzzle\Http\Message\Response
      */
@@ -247,10 +246,10 @@ class Connection
     /**
      * Performs an http request to the CDN.
      *
-     * @param string $method  name of the method (i.e. GET, PUT, POST, etc)
-     * @param array  $path    list of tokens that will be added to connection
+     * @param string $method name of the method (i.e. GET, PUT, POST, etc)
+     * @param array  $path   list of tokens that will be added to connection
      *                        URI string
-     * @param array  $headers additional headers
+     * @param  array                                      $headers additional headers
      * @return \Guzzle\Http\Message\Response
      * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
      */
@@ -325,8 +324,8 @@ class Connection
      * If $errorOnExisting is true and container already exists,
      * throws \OpenStackStorage\Exceptions\ContainerExists.
      *
-     * @param string  $name
-     * @param boolean $errorOnExisting
+     * @param  string                                       $name
+     * @param  boolean                                      $errorOnExisting
      * @return \OpenStackStorage\Container
      * @throws \OpenStackStorage\Exceptions\ContainerExists
      */
@@ -345,7 +344,7 @@ class Connection
     /**
      * Delete container.
      *
-     * @param \OpenStackStorage\Container|string $container
+     * @param  \OpenStackStorage\Container|string             $container
      * @throws \OpenStackStorage\Exceptions\NoSuchContainer
      * @throws \OpenStackStorage\Exceptions\ResponseError
      * @throws \OpenStackStorage\Exceptions\ContainerNotEmpty
@@ -391,7 +390,7 @@ class Connection
     /**
      * Return container object.
      *
-     * @param string $name
+     * @param  string                                       $name
      * @return \OpenStackStorage\Container
      * @throws \OpenStackStorage\Exceptions\NoSuchContainer
      * @throws \OpenStackStorage\Exceptions\ResponseError
@@ -430,7 +429,7 @@ class Connection
     /**
      * Return array with containers.
      *
-     * @param array $parameters
+     * @param  array                         $parameters
      * @return \OpenStackStorage\Container[]
      */
     public function getContainers(array $parameters = array())
@@ -471,7 +470,7 @@ class Connection
      * Return information about containers.
      *
      * @see \OpenStackStorage\Connection::$allowedParameters
-     * @param array $parameters
+     * @param  array $parameters
      * @return array
      */
     public function getContainersInfo(array $parameters = array())
@@ -485,7 +484,7 @@ class Connection
      * Return names of containers.
      *
      * @see \OpenStackStorage\Connection::$allowedParameters
-     * @param array $parameters
+     * @param  array $parameters
      * @return array
      */
     public function getContainersList(array $parameters = array())
@@ -498,7 +497,7 @@ class Connection
     /**
      * Generate path for query string.
      *
-     * @param array $path
+     * @param  array  $path
      * @return string
      */
     public function getPathFromArray(array $path = array())
@@ -581,10 +580,10 @@ class Connection
     /**
      * Performs the real http request.
      *
-     * @param \Guzzle\Http\Client $client
-     * @param string $method
-     * @param string $path
-     * @param array $headers
+     * @param  \Guzzle\Http\Client                                 $client
+     * @param  string                                              $method
+     * @param  string                                              $path
+     * @param  array                                               $headers
      * @return \Guzzle\Http\Message\Response
      * @throws \OpenStackStorage\Exceptions\ResponseError
      * @throws \Guzzle\Http\Exception\ClientErrorResponseException
@@ -628,10 +627,10 @@ class Connection
     /**
      * Retry a failed request once.
      *
-     * @param \Guzzle\Http\Client $client
-     * @param string $method
-     * @param string $path
-     * @param array $headers
+     * @param  \Guzzle\Http\Client           $client
+     * @param  string                        $method
+     * @param  string                        $path
+     * @param  array                         $headers
      * @return \Guzzle\Http\Message\Response
      */
     protected function retryRequest(Client $client, $method, $path, array $headers = array())
@@ -644,7 +643,7 @@ class Connection
     /**
      * Validates the container name.
      *
-     * @param string $name
+     * @param  string                                            $name
      * @throws \OpenStackStorage\Exceptions\InvalidContainerName
      */
     protected function validateContainerName($name)
@@ -660,7 +659,7 @@ class Connection
      * Return a raw response string with containers data.
      *
      * @see \OpenStackStorage\Connection::$allowedParameters
-     * @param array $parameters
+     * @param  array  $parameters
      * @return string
      */
     protected function getContainersRawData(array $parameters = array())

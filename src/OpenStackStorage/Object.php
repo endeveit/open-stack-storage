@@ -95,10 +95,10 @@ class Object
      * $container->getObjects('test.txt');
      * </code>
      *
-     * @param \OpenStackStorage\Container $container
-     * @param string $name
-     * @param boolean $forceExists
-     * @param array $objectRecord
+     * @param  \OpenStackStorage\Container               $container
+     * @param  string                                    $name
+     * @param  boolean                                   $forceExists
+     * @param  array                                     $objectRecord
      * @throws \OpenStackStorage\Exceptions\NoSuchObject
      */
     public function __construct(Container $container, $name = null, $forceExists = false, array &$objectRecord = array())
@@ -226,12 +226,12 @@ class Object
      * return it as a string. However, if a \SplFileObject object is passed
      * in $buffer, the response will be written to it instead.
      *
-     * @param integer        $size    combined with offset, defines the length
+     * @param integer $size combined with offset, defines the length
      *                                of data to be read
-     * @param integer        $offset  combined with size, defines the start
+     * @param integer $offset combined with size, defines the start
      *                                location to be read
-     * @param array          $headers
-     * @param \SplFileObject $buffer
+     * @param  array          $headers
+     * @param  \SplFileObject $buffer
      * @return null|string
      */
     public function read($size = -1, $offset = 0, array $headers = array(), \SplFileObject $buffer = null)
@@ -282,9 +282,9 @@ class Object
      *  — null (can be used to create directories when
      *    $contentType = 'application/directory')
      *
-     * @param mixed $data
-     * @param string $contentType
-     * @param integer $filesize
+     * @param  mixed                              $data
+     * @param  string                             $contentType
+     * @param  integer                            $filesize
      * @throws \OpenStackStorage\Exceptions\Error
      */
     public function write($data, $contentType = null, $filesize = null)
@@ -469,7 +469,7 @@ class Object
      * $object3->purgeFromCdn('user@example.com,user@example.org);
      * </code>
      *
-     * @param string $email
+     * @param  string                                     $email
      * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
      */
     public function purgeFromCdn($email = null)
@@ -535,7 +535,7 @@ class Object
     /**
      * Validates the object name.
      *
-     * @param string $name
+     * @param  string                                         $name
      * @throws \OpenStackStorage\Exceptions\InvalidObjectName
      */
     protected function validateName($name = null)
@@ -595,9 +595,9 @@ class Object
     /**
      * Returns response headers from PUT request, performed with raw cURL.
      *
-     * @param \Guzzle\Http\Message\RequestInterface $request
-     * @param mixed $data
-     * @param integer $timeout
+     * @param  \Guzzle\Http\Message\RequestInterface $request
+     * @param  mixed                                 $data
+     * @param  integer                               $timeout
      * @return \Guzzle\Http\Message\Response
      * @throws \OpenStackStorage\Exceptions\Error
      */
@@ -633,8 +633,8 @@ class Object
     /**
      * Returns raw cURL handler to perform \Guzzle\Http\Message\Request.
      *
-     * @param \Guzzle\Http\Message\RequestInterface $request
-     * @param integer $timeout
+     * @param  \Guzzle\Http\Message\RequestInterface $request
+     * @param  integer                               $timeout
      * @return resource
      * @throws \OpenStackStorage\Exceptions\Error
      */

@@ -17,8 +17,8 @@ class ContainerNotEmpty extends Error
     /**
      * The class constructor.
      *
-     * @param string $containerName
-     * @param integer $code
+     * @param string     $containerName
+     * @param integer    $code
      * @param \Exception $previous
      */
     public function __construct($containerName, $code = 0, \Exception $previous = null)

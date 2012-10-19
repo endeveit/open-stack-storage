@@ -142,10 +142,10 @@ class Container
      * </code>
      *
      * @param \OpenStackStorage\Connection $connection
-     * @param string $name
-     * @param integer $nbObjects
-     * @param integer $sizeUsed
-     * @param array $metadata
+     * @param string                       $name
+     * @param integer                      $nbObjects
+     * @param integer                      $sizeUsed
+     * @param array                        $metadata
      */
     public function __construct(Connection $connection, $name, $nbObjects = 0, $sizeUsed = 0, array $metadata = array())
     {
@@ -240,10 +240,10 @@ class Container
      * </code>
      *
      * @link http://docs.rackspace.com/files/api/v1/cf-devguide/content/StaticWeb.html
-     * @param string $index
+     * @param string  $index
      * @param boolean $enableListings
-     * @param string $error
-     * @param string $listingsCss
+     * @param string  $error
+     * @param string  $listingsCss
      */
     public function enableStaticWeb($index = null, $enableListings = null, $error = null, $listingsCss = null)
     {
@@ -305,7 +305,7 @@ class Container
      * CDN attributes.
      * Requires CDN be enabled on the account.
      *
-     * @param integer $ttl cache duration in seconds of the CDN server
+     * @param  integer                                    $ttl cache duration in seconds of the CDN server
      * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
      */
     public function makePublic($ttl = 86400)
@@ -365,7 +365,7 @@ class Container
      * $container3->purgeFromCdn('user@example.com,user@example.org);
      * </code>
      *
-     * @param string $email
+     * @param  string                                     $email
      * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
      */
     public function purgeFromCdn($email = null)
@@ -389,7 +389,7 @@ class Container
      * "container_name/YYYY/MM/DD/HH/XXXX.gz". Requires CDN be enabled on
      * the account.
      *
-     * @param boolean $logRetention
+     * @param  boolean                                    $logRetention
      * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
      */
     public function logRetention($logRetention = false)
@@ -504,7 +504,7 @@ class Container
      * return an instance of that object, otherwise it will create a
      * new one
      *
-     * @param string $name
+     * @param  string                   $name
      * @return \OpenStackStorage\Object
      */
     public function createObject($name)
@@ -515,7 +515,7 @@ class Container
     /**
      * Return an \OpenStackStorage\Object instance for an existing storage object.
      *
-     * @param string $name
+     * @param  string                                    $name
      * @return \OpenStackStorage\Object
      * @throws \OpenStackStorage\Exceptions\NoSuchObject
      */
@@ -542,7 +542,7 @@ class Container
      * Return array with objects of container.
      *
      * @see \OpenStackStorage\Container::$allowedParameters
-     * @param array $parameters
+     * @param  array                      $parameters
      * @return \OpenStackStorage\Object[]
      */
     public function getObjects(array $parameters = array())
@@ -560,7 +560,7 @@ class Container
      * Return information about objects in container.
      *
      * @see \OpenStackStorage\Container::$allowedParameters
-     * @param array $parameters
+     * @param  array $parameters
      * @return array
      */
     public function getObjectsInfo(array $parameters = array())
@@ -574,7 +574,7 @@ class Container
      * Return names of objects in container.
      *
      * @see \OpenStackStorage\Container::$allowedParameters
-     * @param array $parameters
+     * @param  array $parameters
      * @return array
      */
     public function getObjectsList(array $parameters = array())
@@ -588,7 +588,7 @@ class Container
      * Return a raw response string with information about container objects.
      *
      * @see \OpenStackStorage\Container::$allowedParameters
-     * @param array $parameters
+     * @param  array  $parameters
      * @return string
      */
     protected function getObjectsRawData(array $parameters = array())

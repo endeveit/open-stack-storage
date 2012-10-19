@@ -21,7 +21,7 @@ class Utils
      * and a boolean representing whether the connection should use SSL or not.
      *
      * @static
-     * @param string $url
+     * @param  string                                  $url
      * @return array
      * @throws \OpenStackStorage\Exceptions\InvalidUrl
      */
