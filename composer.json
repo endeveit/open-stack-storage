@@ -2,7 +2,7 @@
     "name": "endeveit/open-stack-storage",
     "type": "library",
     "description": "The port of python-cloudfiles library to work with OpenStack Object Storage",
-    "keywords": ["openstack", "storage", "guzzle"],
+    "keywords": ["openstack", "storage", "guzzle", "cloudfiles", "http", "rackspace"],
     "homepage": "http://github.com/endeveit/open-stack-storage",
     "license": "MIT",
     "authors": [
