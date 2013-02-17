@@ -8,4 +8,4 @@ Requirements
 
 Library is only supported on PHP 5.3 and up.
 
-HTTP-requests are performing with [Guzzle](https://github.com/guzzle/guzzle) library.
+HTTP-requests are performing with [Resty.php](https://github.com/fictivekin/resty.php) library.
