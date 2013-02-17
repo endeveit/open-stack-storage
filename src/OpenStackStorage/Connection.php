@@ -8,10 +8,6 @@
  */
 namespace OpenStackStorage;
 
-use Guzzle\Http\Client;
-use Guzzle\Http\Exception\ClientErrorResponseException;
-use Guzzle\Http\Message\RequestInterface;
-
 define('CONTAINER_NAME_LIMIT', 256);
 define('OBJECT_NAME_LIMIT',    1024);
 define('META_NAME_LIMIT',      128);
@@ -76,7 +72,7 @@ class Connection
     /**
      * HTTP-client to work with storage.
      *
-     * @var \Guzzle\Http\Client
+     * @var \OpenStackStorage\Client
      */
     protected $client = null;
 
@@ -95,9 +91,9 @@ class Connection
     protected $cdnEnabled = false;
 
     /**
-     * HTTP-client to work with storage via CDN.
+     * HTTP-client to work with storage.
      *
-     * @var \Guzzle\Http\Client
+     * @var \OpenStackStorage\Client
      */
     protected $cdnClient = null;
 
@@ -161,13 +157,7 @@ class Connection
             );
         }
 
-        $this->auth = new Authentication(
-            $username,
-            $apiKey,
-            $options['authurl'],
-            $this->userAgent,
-            $timeout
-        );
+        $this->auth = new Authentication($username, $apiKey, $options['authurl'], $this->userAgent, $timeout);
     }
 
     /**
@@ -193,7 +183,7 @@ class Connection
     /**
      * Return the value of the $connection property.
      *
-     * @return \Guzzle\Http\Client
+     * @return \OpenStackStorage\Client
      */
     public function getClient()
     {
@@ -229,18 +219,13 @@ class Connection
      * @param array $headers    additional headers
      * @param array $parameters additional parameters that will be added to the
      *                           query string
-     * @return \Guzzle\Http\Message\Response
+     * @return array
      */
-    public function makeRequest($method, array $path = array(), array $headers = array(), array $parameters = array())
+    public function makeRequest($method, array $path = array(), array $headers = array(), $parameters = array())
     {
         $this->authenticate();
 
-        $path = $this->getPathFromArray($path);
-        if (!empty($parameters)) {
-            $path .= '?' . http_build_query($parameters);
-        }
-
-        return $this->makeRealRequest($this->client, $method, $path, $headers);
+        return $this->makeRealRequest($this->client, $method, $this->getPathFromArray($path), $parameters, $headers);
     }
 
     /**
@@ -250,7 +235,7 @@ class Connection
      * @param array  $path   list of tokens that will be added to connection
      *                        URI string
      * @param  array                                      $headers additional headers
-     * @return \Guzzle\Http\Message\Response
+     * @return array
      * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
      */
     public function makeCdnRequest($method, array $path = array(), array $headers = array())
@@ -261,12 +246,7 @@ class Connection
             throw new Exceptions\CDNNotEnabled();
         }
 
-        return $this->makeRealRequest(
-            $this->cdnClient,
-            $method,
-            $this->getPathFromArray($path),
-            $headers
-        );
+        return $this->makeRealRequest($this->cdnClient, $method, $this->getPathFromArray($path), $headers);
     }
 
     /**
@@ -277,20 +257,20 @@ class Connection
      */
     public function getAccountInfo()
     {
-        $response     = $this->makeRequest(RequestInterface::HEAD);
+        $response     = $this->makeRequest(Client::HEAD);
         $nbContainers = 0;
         $totalSize    = 0;
         $metadata     = array();
 
-        foreach ($response->getHeaders() as $name => $values) {
+        foreach ($response['headers'] as $name => $value) {
             $name = strtolower($name);
 
             if (0 === strcmp($name, 'x-account-container-count')) {
-                $nbContainers = intval($values[0]);
+                $nbContainers = intval($value);
             } elseif (0 === strcmp($name, 'x-account-bytes-used')) {
-                $totalSize = intval($values[0]);
+                $totalSize = intval($value);
             } elseif (0 === strpos($name, 'x-account-meta-')) {
-                $metadata[substr($name, 15)] = $values[0];
+                $metadata[substr($name, 15)] = $value;
             }
         }
 
@@ -315,7 +295,7 @@ class Connection
      */
     public function updateAccountMetadata(array $metadata)
     {
-        $this->makeRequest(RequestInterface::POST, array(), $metadata);
+        $this->makeRequest(Client::POST, array(), $metadata);
     }
 
     /**
@@ -333,8 +313,8 @@ class Connection
     {
         $this->validateContainerName($name);
 
-        $response = $this->makeRequest(RequestInterface::PUT, array($name));
-        if ($errorOnExisting && 202 == $response->getStatusCode()) {
+        $response = $this->makeRequest(Client::PUT, array($name));
+        if ($errorOnExisting && 202 == $response['status']) {
             throw new Exceptions\ContainerExists($name);
         }
 
@@ -344,9 +324,9 @@ class Connection
     /**
      * Delete container.
      *
-     * @param  \OpenStackStorage\Container|string             $container
+     * @param  \OpenStackStorage\Container|string                    $container
      * @throws \OpenStackStorage\Exceptions\NoSuchContainer
-     * @throws \OpenStackStorage\Exceptions\ResponseError
+     * @throws \Exception|\OpenStackStorage\Exceptions\ResponseError
      * @throws \OpenStackStorage\Exceptions\ContainerNotEmpty
      */
     public function deleteContainer($container)
@@ -360,10 +340,9 @@ class Connection
         $this->validateContainerName($name);
 
         try {
-            $this->makeRequest(RequestInterface::DELETE, array($name));
+            $this->makeRequest(Client::DELETE, array($name));
         } catch (Exceptions\ResponseError $e) {
-            $response = $e->getResponse();
-            switch ($response->getStatusCode()) {
+            switch ($e->getCode()) {
                 case 409:
                     throw new Exceptions\ContainerNotEmpty($name);
                     break;
@@ -378,7 +357,7 @@ class Connection
 
         if ($this->getCdnEnabled()) {
             $this->makeCdnRequest(
-                RequestInterface::POST,
+                Client::POST,
                 array($name),
                 array(
                     'X-CDN-Enabled' => 'False',
@@ -390,36 +369,32 @@ class Connection
     /**
      * Return container object.
      *
-     * @param  string                                       $name
+     * @param  string                                                $name
      * @return \OpenStackStorage\Container
      * @throws \OpenStackStorage\Exceptions\NoSuchContainer
-     * @throws \OpenStackStorage\Exceptions\ResponseError
+     * @throws \Exception|\OpenStackStorage\Exceptions\ResponseError
      */
     public function getContainer($name)
     {
         $this->validateContainerName($name);
 
         try {
-            $response = $this->makeRequest(RequestInterface::HEAD, array($name));
+            $response = $this->makeRequest(Client::HEAD, array($name));
         } catch (Exceptions\ResponseError $e) {
-            $response = $e->getResponse();
-
-            if (404 == $response->getStatusCode()) {
+            if (404 == $e->getCode()) {
                 throw new Exceptions\NoSuchContainer();
             }
 
             throw $e;
         }
 
-        $nbObjects = $response->getHeader('x-container-object-count', true);
-        $sizeUsed  = $response->getHeader('x-container-bytes-used', true);
+        $nbObjects = $response['headers']['x-container-object-count'];
+        $sizeUsed  = $response['headers']['x-container-bytes-used'];
         $metadata  = array();
 
-        foreach ($response->getHeaders() as $header => $values) {
-            $header = strtolower($header);
-
-            if (0 === strpos($header, 'x-container-meta-')) {
-                $metadata[substr($header, 17)] = $values[0];
+        foreach ($response['headers'] as $k => $value) {
+            if (0 === strpos($k, 'x-container-meta-')) {
+                $metadata[substr($k, 17)] = $value;
             }
         }
 
@@ -437,12 +412,7 @@ class Connection
         $result = array();
 
         foreach ($this->getContainersInfo($parameters) as $info) {
-            $result[] = new Container(
-                $this,
-                $info['name'],
-                $info['count'],
-                $info['bytes']
-            );
+            $result[] = new Container($this, $info['name'], $info['count'], $info['bytes']);
         }
 
         return $result;
@@ -460,10 +430,9 @@ class Connection
             throw new Exceptions\CDNNotEnabled();
         }
 
-        return explode(
-            "\n",
-            trim($this->makeCdnRequest(RequestInterface::GET)->getBody(true))
-        );
+        $response = $this->makeCdnRequest(Client::GET);
+
+        return explode("\n", trim($response['body']));
     }
 
     /**
@@ -477,7 +446,7 @@ class Connection
     {
         $parameters['format'] = 'json';
 
-        return json_decode($this->getContainersRawData($parameters), true);
+        return $this->getContainersRawData($parameters);
     }
 
     /**
@@ -505,7 +474,7 @@ class Connection
         $tmp = array();
 
         foreach ($path as $value) {
-            $tmp[] = urlencode($value);
+            $tmp[] = rawurlencode($value);
         }
 
         return sprintf(
@@ -542,19 +511,14 @@ class Connection
      */
     protected function httpConnect()
     {
-        $this->client = new Client(
-            sprintf(
-                '%s://%s:%d',
-                $this->connectionUrlInfo['scheme'],
-                $this->connectionUrlInfo['host'],
-                $this->connectionUrlInfo['port']
-            ),
-            array(
-                'curl.CURLOPT_SSL_VERIFYHOST' => false,
-                'curl.CURLOPT_SSL_VERIFYPEER' => false,
-                'curl.CURLOPT_CONNECTTIMEOUT' => $this->timeout
-            )
-        );
+        $this->client = new Client(array('timeout' => $this->timeout));
+        $this->client->setUserAgent($this->userAgent);
+        $this->client->setBaseURL(sprintf(
+            '%s://%s:%d',
+            $this->connectionUrlInfo['scheme'],
+            $this->connectionUrlInfo['host'],
+            $this->connectionUrlInfo['port']
+        ));
     }
 
     /**
@@ -562,82 +526,34 @@ class Connection
      */
     protected function cdnConnect()
     {
-        $info             = Utils::parseUrl($this->cdnUrl);
-        $this->cdnEnabled = true;
-        $this->cdnClient  = new Client(
-            sprintf(
-                '%s://%s:%d',
-                $info['scheme'],
-                $info['host'],
-                $info['port']
-            ),
-            array(
-                'curl.CURLOPT_CONNECTTIMEOUT' => $this->timeout
-            )
-        );
+        $info                = Utils::parseUrl($this->cdnUrl);
+        $this->cdnEnabled    = true;
+        $this->cdnClient = new Client(array('timeout' => $this->timeout));
+        $this->cdnClient->setUserAgent($this->userAgent);
+        $this->cdnClient->setBaseURL(sprintf(
+            '%s://%s:%d',
+            $info['scheme'],
+            $info['host'],
+            $info['port']
+        ));
     }
 
     /**
      * Performs the real http request.
      *
-     * @param  \Guzzle\Http\Client                                 $client
-     * @param  string                                              $method
-     * @param  string                                              $path
-     * @param  array                                               $headers
-     * @return \Guzzle\Http\Message\Response
-     * @throws \OpenStackStorage\Exceptions\ResponseError
-     * @throws \Guzzle\Http\Exception\ClientErrorResponseException
+     * @param  \OpenStackStorage\Client $client
+     * @param  string                   $method
+     * @param  string                   $path
+     * @param  array                    $parameters
+     * @param  array                    $headers
+     * @return array
      * @throws \Exception
      */
-    protected function makeRealRequest(Client $client, $method, $path, array $headers = array())
-    {
-        $headers = array_merge(
-            array(
-                'User-Agent'   => $this->userAgent,
-                'X-Auth-Token' => $this->authToken,
-            ),
-            $headers
-        );
-
-        $request = $client->createRequest($method, $path, $headers);
-
-        try {
-            $response = $request->send();
-        } catch (ClientErrorResponseException $e) {
-            // Authentication token has been expired
-            if (401 == $e->getResponse()->getStatusCode()) {
-                $this->authenticate();
-                $response = $this->retryRequest($client, $method, $path, $headers);
-            } else {
-                $response = $e->getResponse();
-            }
-        } catch (\Exception $e) {
-            // Let's try again
-            $response = $this->retryRequest($client, $method, $path, $headers);
-        }
-
-        $statusCode = $response->getStatusCode();
-        if ($statusCode < 200 || $statusCode >= 300) {
-            throw new Exceptions\ResponseError($response);
-        }
-
-        return $response;
-    }
-
-    /**
-     * Retry a failed request once.
-     *
-     * @param  \Guzzle\Http\Client           $client
-     * @param  string                        $method
-     * @param  string                        $path
-     * @param  array                         $headers
-     * @return \Guzzle\Http\Message\Response
-     */
-    protected function retryRequest(Client $client, $method, $path, array $headers = array())
+    protected function makeRealRequest(Client $client, $method, $path, $parameters = array(), array $headers = array())
     {
         $headers['X-Auth-Token'] = $this->authToken;
 
-        return $client->createRequest($method, $path, $headers)->send();
+        return $client->sendRequest($path, $method, $parameters, $headers);
     }
 
     /**
@@ -675,12 +591,8 @@ class Connection
                 }
             }
 
-            self::$listContainersCache[$cacheKey] = $this->makeRequest(
-                RequestInterface::GET,
-                array(),
-                array(),
-                $tmp
-            )->getBody(true);
+            $response = $this->makeRequest(Client::GET, array(), array(), $tmp);
+            self::$listContainersCache[$cacheKey] = $response['body'];
         }
 
         return self::$listContainersCache[$cacheKey];

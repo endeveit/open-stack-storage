@@ -8,9 +8,6 @@
  */
 namespace OpenStackStorage;
 
-use Guzzle\Http\Client;
-use Guzzle\Http\Exception\ClientErrorResponseException;
-
 /**
  * Authentication instances are used to interact with the remote authentication
  * service, retrieving storage system routing information and session tokens.
@@ -33,6 +30,13 @@ class Authentication
     protected $headers = array();
 
     /**
+     * User-Agent for request.
+     *
+     * @var string
+     */
+    protected $userAgent = null;
+
+    /**
      * Request timeout.
      *
      * @var integer
@@ -50,12 +54,12 @@ class Authentication
      */
     public function __construct($username, $apiKey, $url, $userAgent, $timeout = 5)
     {
-        $this->urlInfo = Utils::parseUrl($url);
-        $this->timeout = intval($timeout);
-        $this->headers = array(
+        $this->urlInfo   = Utils::parseUrl($url);
+        $this->userAgent = $userAgent;
+        $this->timeout   = intval($timeout);
+        $this->headers   = array(
             'x-auth-user' => $username,
             'x-auth-key'  => $apiKey,
-            'User-Agent'  => $userAgent,
         );
     }
 
@@ -65,49 +69,41 @@ class Authentication
      * and session token.
      *
      * @return array
-     * @throws \OpenStackStorage\Exceptions\AuthenticationFailed
+     * @throws \Exception|\OpenStackStorage\Exceptions\ResponseError
      * @throws \OpenStackStorage\Exceptions\AuthenticationError
-     * @throws \OpenStackStorage\Exceptions\ResponseError
+     * @throws \OpenStackStorage\Exceptions\AuthenticationFailed
+     * @throws \Exception
      */
     public function authenticate()
     {
-        $client = new Client(
-            sprintf(
-                '%s://%s:%d',
-                $this->urlInfo['scheme'],
-                $this->urlInfo['host'],
-                $this->urlInfo['port']
-            ),
-            array(
-                'curl.CURLOPT_SSL_VERIFYHOST' => false,
-                'curl.CURLOPT_SSL_VERIFYPEER' => false,
-                'curl.CURLOPT_CONNECTTIMEOUT' => $this->timeout
-            )
-        );
+        $client = new Client(array('timeout' => $this->timeout));
+        $client->setBaseURL(sprintf(
+            '%s://%s:%d/',
+            $this->urlInfo['scheme'],
+            $this->urlInfo['host'],
+            $this->urlInfo['port']
+        ));
+        $client->setUserAgent($this->userAgent);
 
         try {
-            $response = $client->get($this->urlInfo['path'], $this->headers)->send();
-        } catch (ClientErrorResponseException $e) {
-            $response = $e->getResponse();
-            if (401 == $response->getStatusCode()) {
+            $response = $client->get($this->urlInfo['path'], null, $this->headers);
+        } catch (Exceptions\ResponseError $e) {
+            if (401 == $e->getCode()) {
                 // A status code of 401 indicates that the supplied credentials
                 // were not accepted by the authentication service.
                 throw new Exceptions\AuthenticationFailed();
             }
+
+            throw $e;
         }
 
-        // Raise an error for any response that is not 2XX
-        if (2 != floor($response->getStatusCode() / 100)) {
-            throw new Exceptions\ResponseError($response);
-        }
-
-        $authToken = $response->getHeader('x-auth-token', true);
+        $authToken = $response['headers']['x-auth-token'];
         if (!$authToken) {
-            $authToken = $response->getHeader('x-storage-token', true);
+            $authToken = $response['headers']['x-storage-token'];
         }
 
-        $storageUrl = $response->getHeader('x-storage-url', true);
-        $cdnUrl     = $response->getHeader('x-cdn-management-url', true);
+        $storageUrl = $response['headers']['x-storage-url'];
+        $cdnUrl     = $response['headers']['x-cdn-management-url'];
 
         if (!($authToken && $storageUrl)) {
             throw new Exceptions\AuthenticationError(

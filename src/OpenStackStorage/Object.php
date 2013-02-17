@@ -8,11 +8,6 @@
  */
 namespace OpenStackStorage;
 
-use Guzzle\Common\Event;
-use Guzzle\Http\Curl\CurlHandle;
-use Guzzle\Http\Message\RequestInterface;
-use Guzzle\Http\Message\Response;
-
 /**
  * Storage data representing an object, (metadata and data).
  */
@@ -247,17 +242,17 @@ class Object
         }
 
         $response = $this->container->getConnection()->makeRequest(
-            RequestInterface::GET,
+            Client::GET,
             array($this->container->getName(), $this->name),
             $headers
         );
 
         if (null !== $buffer) {
-            $buffer->fwrite($response->getBody(true));
+            $buffer->fwrite($response['body']);
 
             return null;
         } else {
-            return $response->getBody(true);
+            return $response['body'];
         }
     }
 
@@ -302,6 +297,7 @@ class Object
             if (!$filesize) {
                 $this->size = filesize($meta['uri']);
             }
+            $data = stream_get_contents($data);
         } elseif (is_object($data) && $data instanceof \SplFileObject) {
             $this->size = $data->getSize();
             $path       = $data->getType();
@@ -332,27 +328,20 @@ class Object
         $connection = $this->container->getConnection();
         $headers    = array_merge(
             array(
-                'User-Agent'   => $connection->getUserAgent(),
                 'X-Auth-Token' => $connection->getAuthToken(),
             ),
             $this->getNewHeaders()
         );
         unset($headers['ETag']);
 
-        // Make the request with raw cURL, because of slow PUT requests
-        // made with Guzzle
-        $response = $this->getPutResponseViaRawCurl(
-            $connection->getClient()->put(
-                $connection->getPathFromArray(
-                    array($this->container->getName(), $this->name)
-                ),
-                $headers
-            ),
-            $data,
-            $connection->getTimeout()
+        $response = $connection->makeRequest(
+            Client::PUT,
+            array($this->container->getName(), $this->name),
+            $headers,
+            $data
         );
 
-        $this->etag = $response->getHeader('etag', true);
+        $this->etag = $response['headers']['etag'];
     }
 
     /**
@@ -377,12 +366,12 @@ class Object
             $headers['Content-Length'] = '0';
 
             $response = $this->container->getConnection()->makeRequest(
-                RequestInterface::POST,
+                Client::POST,
                 array($this->container->getName(), $this->name),
                 $headers
             );
 
-            if (202 != $response->getStatusCode()) {
+            if (202 != $response['status']) {
                 throw new Exceptions\ResponseError($response);
             }
         }
@@ -407,7 +396,7 @@ class Object
             $headers['Content-Length'] = '0';
 
             $this->container->getConnection()->makeRequest(
-                RequestInterface::PUT,
+                Client::PUT,
                 array($this->container->getName(), $this->name),
                 $headers
             );
@@ -484,7 +473,7 @@ class Object
         }
 
         $this->container->getConnection()->makeCdnRequest(
-            RequestInterface::DELETE,
+            Client::DELETE,
             array($this->container->getName(), $this->name),
             $headers
         );
@@ -494,7 +483,7 @@ class Object
      * Initialize the object with values from the remote service (if any).
      *
      * @return boolean
-     * @throws \OpenStackStorage\Exceptions\ResponseError
+     * @throws \Exception|\OpenStackStorage\Exceptions\ResponseError
      */
     protected function initialize()
     {
@@ -504,26 +493,24 @@ class Object
 
         try {
             $response = $this->container->getConnection()->makeRequest(
-                RequestInterface::HEAD,
+                Client::HEAD,
                 array($this->container->getName(), $this->name)
             );
         } catch (Exceptions\ResponseError $e) {
-            if (404 == $e->getResponse()->getStatusCode()) {
+            if (404 == $e->getCode()) {
                 return false;
             }
 
             throw $e;
         }
 
-        $this->manifest     = $response->getHeader('x-object-manifest', true);
-        $this->contentType  = $response->getHeader('content-type', true);
-        $this->etag         = $response->getHeader('etag', true);
-        $this->size         = intval($response->getHeader('content-length', true));
-        $this->lastModified = new \DateTime($response->getHeader('last-modified', true));
+        $this->manifest     = $response['headers']['x-object-manifest'];
+        $this->contentType  = $response['headers']['content-type'];
+        $this->etag         = $response['headers']['etag'];
+        $this->size         = intval($response['headers']['content-length']);
+        $this->lastModified = new \DateTime($response['headers']['last-modified']);
 
-        foreach ($response->getHeaders() as $name => $values) {
-            $name = strtolower($name);
-
+        foreach ($response['headers'] as $name => $values) {
             if (0 === strpos($name, 'x-object-meta-')) {
                 $this->metadata[substr($name, 14)] = $values[0];
             }
@@ -590,79 +577,6 @@ class Object
         }
 
         return array_merge($this->headers, $headers);
-    }
-
-    /**
-     * Returns response headers from PUT request, performed with raw cURL.
-     *
-     * @param  \Guzzle\Http\Message\RequestInterface $request
-     * @param  mixed                                 $data
-     * @param  integer                               $timeout
-     * @return \Guzzle\Http\Message\Response
-     * @throws \OpenStackStorage\Exceptions\Error
-     */
-    protected function getPutResponseViaRawCurl(RequestInterface $request, $data, $timeout = 5)
-    {
-        if (!is_resource($data)) {
-            $data = fopen('data://text/plain,' . urlencode($data), 'r');
-        }
-
-        $ch = $this->getCurlHandlerFromPutRequest($request, $timeout);
-        curl_setopt($ch, CURLOPT_INFILESIZE, $this->size);
-        curl_setopt($ch, CURLOPT_INFILE, $data);
-
-        if (!($message = curl_exec($ch))) {
-            throw new Exceptions\Error(curl_error($ch), curl_errno($ch));
-        }
-
-        $response = Response::fromMessage($message);
-        $response->setInfo(curl_getinfo($ch));
-        curl_close($ch);
-
-        $ed = $request->getClient()->getEventDispatcher();
-        if ($ed->hasListeners('request.complete')) {
-            $ed->dispatch(
-                'request.complete',
-                new Event(array('request' => $request, 'response' => $response))
-            );
-        }
-
-        return $response;
-    }
-
-    /**
-     * Returns raw cURL handler to perform \Guzzle\Http\Message\Request.
-     *
-     * @param  \Guzzle\Http\Message\RequestInterface $request
-     * @param  integer                               $timeout
-     * @return resource
-     * @throws \OpenStackStorage\Exceptions\Error
-     */
-    protected function getCurlHandlerFromPutRequest(RequestInterface $request, $timeout = 5)
-    {
-        if ($request->getMethod() != RequestInterface::PUT) {
-            throw new Exceptions\Error(
-                'Only PUT requests can be passed to this method'
-            );
-        }
-
-        CurlHandle::factory($request);
-
-        $options = $request->getParams()->get('curl.last_options');
-        $options[CURLOPT_CONNECTTIMEOUT] = $timeout;
-        $options[CURLOPT_TIMEOUT]        = $timeout;
-        $options[CURLOPT_HEADER]         = true;
-        $options[CURLOPT_NOBODY]         = true;
-        $options[CURLOPT_RETURNTRANSFER] = true;
-
-        // Unset Guzzle specific options
-        unset($options[CURLOPT_WRITEFUNCTION]);
-        unset($options[CURLOPT_HEADERFUNCTION]);
-
-        $ch = curl_init();
-        curl_setopt_array($ch, $options);
-
-        return $ch;
     }
 
 }

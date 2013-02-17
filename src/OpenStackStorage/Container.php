@@ -8,8 +8,6 @@
  */
 namespace OpenStackStorage;
 
-use Guzzle\Http\Message\RequestInterface;
-
 /**
  * \OpenStackStorage\Container object and \OpenStackStorage\Object
  * instance factory.
@@ -166,14 +164,14 @@ class Container
 
         // Fetch the CDN data from the CDN service
         if ($connection->getCdnEnabled()) {
-            $response = $connection->makeCdnRequest(RequestInterface::HEAD, array($name));
+            $response = $connection->makeCdnRequest(Client::HEAD, array($name));
 
-            $this->cdnUri          = $response->getHeader('x-cdn-uri', true);
-            $this->cdnTtl          = $response->getHeader('x-ttl', true);
-            $this->cdnSslUri       = $response->getHeader('x-cdn-ssl-uri', true);
-            $this->cdnStreamingUri = $response->getHeader('x-cdn-streaming-uri', true);
+            $this->cdnUri          = $response['headers']['x-cdn-uri'];
+            $this->cdnTtl          = $response['headers']['x-ttl'];
+            $this->cdnSslUri       = $response['headers']['x-cdn-ssl-uri'];
+            $this->cdnStreamingUri = $response['headers']['x-cdn-streaming-uri'];
 
-            $logRetention = $response->getHeader('x-log-retention', true);
+            $logRetention = $response['headers']['x-log-retention'];
             if ($logRetention && (0 === strcasecmp($logRetention, 'true'))) {
                 $this->cdnLogRetention = true;
             }
@@ -224,11 +222,7 @@ class Container
      */
     public function updateMetadata(array $metadata)
     {
-        $this->connection->makeRequest(
-            RequestInterface::POST,
-            array($this->name),
-            $metadata
-        );
+        $this->connection->makeRequest(Client::POST, array($this->name), $metadata);
     }
 
     /**
@@ -315,9 +309,9 @@ class Container
         }
 
         if ($this->cdnUri) {
-            $requestMethod = RequestInterface::POST;
+            $requestMethod = Client::POST;
         } else {
-            $requestMethod = RequestInterface::PUT;
+            $requestMethod = Client::PUT;
         }
 
         $response = $this->connection->makeCdnRequest(
@@ -330,8 +324,8 @@ class Container
         );
 
         $this->cdnTtl    = $ttl;
-        $this->cdnUri    = $response->getHeader('x-cdn-uri', true);
-        $this->cdnSslUri = $response->getHeader('x-cdn-ssl-uri', true);
+        $this->cdnUri    = $response['headers']['x-cdn-uri'];
+        $this->cdnSslUri = $response['headers']['x-cdn-ssl-uri'];
     }
 
     /**
@@ -348,7 +342,7 @@ class Container
 
         $this->cdnUri = null;
         $this->connection->makeCdnRequest(
-            RequestInterface::POST,
+            Client::POST,
             array($this->name),
             array('X-CDN-Enabled' => 'False')
         );
@@ -379,7 +373,7 @@ class Container
             $headers['X-Purge-Email'] = $email;
         }
 
-        $this->connection->makeCdnRequest(RequestInterface::DELETE, array($this->name), $headers);
+        $this->connection->makeCdnRequest(Client::DELETE, array($this->name), $headers);
     }
 
     /**
@@ -400,7 +394,7 @@ class Container
 
         $logRetention = (boolean) $logRetention;
         $this->connection->makeCdnRequest(
-            RequestInterface::POST,
+            Client::POST,
             array($this->name),
             array('X-Log-Retention' => $logRetention ? 'True' : 'False')
         );
@@ -535,7 +529,7 @@ class Container
             $name = $name->getName();
         }
 
-        $this->connection->makeRequest(RequestInterface::DELETE, array($this->name, $name));
+        $this->connection->makeRequest(Client::DELETE, array($this->name, $name));
     }
 
     /**
@@ -567,7 +561,7 @@ class Container
     {
         $parameters['format'] = 'json';
 
-        return json_decode($this->getObjectsRawData($parameters), true);
+        return $this->getObjectsRawData($parameters);
     }
 
     /**
@@ -581,7 +575,7 @@ class Container
     {
         $parameters['format'] = 'plain';
 
-        return explode("\n", trim($this->getObjectsRawData($parameters)));
+        return array_filter(explode("\n", trim($this->getObjectsRawData($parameters))));
     }
 
     /**
@@ -604,12 +598,8 @@ class Container
                 }
             }
 
-            self::$listObjectsCache[$cacheKey] = $this->connection->makeRequest(
-                RequestInterface::GET,
-                array($this->name),
-                array(),
-                $tmp
-            )->getBody(true);
+            $response = $this->connection->makeRequest(Client::GET, array($this->name), array(), $tmp);
+            self::$listObjectsCache[$cacheKey] = $response['body'];
         }
 
         return self::$listObjectsCache[$cacheKey];
