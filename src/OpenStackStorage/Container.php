@@ -318,8 +318,9 @@ class Container
             $requestMethod,
             array($this->name),
             array(
-                'X-TTL'         => strval($ttl),
-                'X-CDN-Enabled' => 'True',
+                'X-TTL'          => strval($ttl),
+                'X-CDN-Enabled'  => 'True',
+                'Content-Length' => 0,
             )
         );
 

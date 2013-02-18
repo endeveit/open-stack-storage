@@ -313,7 +313,7 @@ class Connection
     {
         $this->validateContainerName($name);
 
-        $response = $this->makeRequest(Client::PUT, array($name));
+        $response = $this->makeRequest(Client::PUT, array($name), array('Content-Length' => 0));
         if ($errorOnExisting && 202 == $response['status']) {
             throw new Exceptions\ContainerExists($name);
         }

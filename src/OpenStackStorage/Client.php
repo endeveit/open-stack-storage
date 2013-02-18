@@ -87,4 +87,40 @@ class Client extends \Resty
         return $response;
     }
 
+    /**
+     * {@inheritdoc}
+     * Overridden method to decode JSON to array instead of stdClass.
+     *
+     * @param  string        $resp
+     * @return object|string
+     */
+    protected function processResponseBody($resp)
+    {
+        if ($this->parse_body === true) {
+            if (isset($resp['headers']['Content-Type'])) {
+                $contentType = preg_split('/[;\s]+/', $resp['headers']['Content-Type']);
+                $contentType = $contentType[0];
+            } else {
+                $contentType = null;
+            }
+
+            if ((null !== $contentType) && !empty($contentType)) {
+                if (in_array($contentType, self::$JSON_TYPES) || strpos($contentType, '+json') !== false) {
+                    $this->log('Response body is JSON');
+
+                    $resp['body_raw'] = $resp['body'];
+                    $resp['body']     = json_decode($resp['body'], true);
+
+                    return $resp;
+                }
+
+                parent::processResponseBody($resp);
+            }
+        }
+
+        $this->log('Response body not parsed');
+
+        return $resp;
+    }
+
 }
