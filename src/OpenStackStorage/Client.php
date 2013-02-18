@@ -19,10 +19,6 @@ class Client extends \Resty
     const POST = 'POST';
     const DELETE = 'DELETE';
     const HEAD = 'HEAD';
-    const CONNECT = 'CONNECT';
-    const OPTIONS = 'OPTIONS';
-    const TRACE = 'TRACE';
-    const PATCH = 'PATCH';
 
     /**
      * Request timeout.
