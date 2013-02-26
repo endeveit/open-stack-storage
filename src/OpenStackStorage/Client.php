@@ -64,8 +64,22 @@ class Client extends \Resty
             $options = array();
         }
 
+        if (null === $headers) {
+            $headers = array();
+        }
+
         if (!array_key_exists('timeout', $options)) {
             $options['timeout'] = $this->timeout;
+        }
+
+        if ($method == self::PUT && !array_key_exists('Content-Length', $headers)) {
+            if (empty($querydata)) {
+                $headers['Content-Length'] = 0;
+            } else {
+                $headers['Content-Length'] = is_string($querydata)
+                    ? strlen($querydata)
+                    : strlen(http_build_query($querydata));
+            }
         }
 
         $response = parent::sendRequest($url, $method, $querydata, $headers, $options);
