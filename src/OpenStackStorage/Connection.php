@@ -580,7 +580,7 @@ class Connection
      */
     protected function getContainersRawData(array $parameters = array())
     {
-        $cacheKey = md5(serialize($parameters));
+        $cacheKey = md5(json_encode($parameters));
 
         if (!array_key_exists($cacheKey, self::$listContainersCache)) {
             $tmp = array();

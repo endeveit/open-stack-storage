@@ -588,7 +588,7 @@ class Container
      */
     protected function getObjectsRawData(array $parameters = array())
     {
-        $cacheKey = md5(serialize($parameters));
+        $cacheKey = md5(json_encode(array($this->getName(), $parameters)));
 
         if (!array_key_exists($cacheKey, self::$listObjectsCache)) {
             $tmp = array();
