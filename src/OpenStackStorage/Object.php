@@ -573,7 +573,7 @@ class Object
                 throw new Exceptions\InvalidMetaValue();
             }
 
-            $headers['X-Object-Meta-' + $key] = $value;
+            $headers['X-Object-Meta-' . $key] = $value;
         }
 
         return array_merge($this->headers, $headers);
