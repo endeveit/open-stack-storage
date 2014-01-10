@@ -215,6 +215,16 @@ class Object
     }
 
     /**
+     * Returns the object size in bytes.
+     *
+     * @return integer
+     */
+    public function getSize()
+    {
+        return $this->size;
+    }
+
+    /**
      * Read the content from the remote storage object.
      *
      * By default this method will buffer the response in memory and
@@ -512,7 +522,7 @@ class Object
 
         foreach ($response['headers'] as $name => $values) {
             if (0 === strpos($name, 'x-object-meta-')) {
-                $this->metadata[substr($name, 14)] = $values[0];
+                $this->metadata[substr($name, 14)] = is_array($values) ? $values[0] : $values;
             }
         }
 
