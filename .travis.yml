@@ -1,0 +1,38 @@
+language: php
+
+php:
+  - 5.4
+  - 5.5
+  - 5.6
+  - hhvm
+
+sudo: required
+
+git:
+  depth: 1
+
+services:
+  - docker
+
+env:
+  global:
+    - TEST_SW_USERNAME="test:tester"
+    - TEST_SW_APIKEY="testing"
+    - TEST_SW_URL="http://127.0.0.1:8080/auth/v1.0"
+    - TEST_SW_TIMEOUT=10
+
+before_install:
+  - mkdir ./build-swift-nodes
+  - 'docker run -d -p 8080:8080 -v ./build-swift-nodes:/swift/nodes -t kahing/docker-swift'
+  - sleep 10 # give docker some time to boot
+  - bash tests/fixtures/import.sh
+
+before_script:
+  - composer update --prefer-source --no-interaction
+
+script:
+  - php vendor/bin/phpcs --standard=PSR2 --encoding=utf-8 src/
+  - php vendor/bin/phpunit -c phpunit.xml --coverage-text --coverage-clover ./build/logs/clover.xml tests/
+
+after_script:
+  - php vendor/bin/coveralls

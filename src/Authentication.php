@@ -97,18 +97,30 @@ class Authentication
             throw $e;
         }
 
-        $authToken = $response['headers']['x-auth-token'];
-        if (!$authToken) {
+        if (isset($response['headers']['x-auth-token'])) {
+            $authToken = $response['headers']['x-auth-token'];
+        } elseif (isset($response['headers']['x-storage-token'])) {
             $authToken = $response['headers']['x-storage-token'];
+        } else {
+            $authToken = null;
         }
 
-        $storageUrl = $response['headers']['x-storage-url'];
-        $cdnUrl     = $response['headers']['x-cdn-management-url'];
+        if (isset($response['headers']['x-storage-url'])) {
+            $storageUrl = $response['headers']['x-storage-url'];
+        } else {
+            $storageUrl = null;
+        }
 
         if (!($authToken && $storageUrl)) {
             throw new Exceptions\AuthenticationError(
                 'Invalid response from the authentication service.'
             );
+        }
+
+        if (isset($response['headers']['x-cdn-management-url'])) {
+            $cdnUrl = $response['headers']['x-cdn-management-url'];
+        } else {
+            $cdnUrl = null;
         }
 
         return array(

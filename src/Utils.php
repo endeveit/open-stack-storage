@@ -28,16 +28,12 @@ class Utils
     public static function parseUrl($url)
     {
         $info = parse_url($url);
-        if (!$info) {
+        if (!$info || empty($info['scheme'])) {
             throw new InvalidUrl('The string must be a valid URL');
         }
 
         if (empty($info['scheme']) || !in_array($info['scheme'], array('http', 'https'))) {
             throw new InvalidUrl('Scheme must be one of http or https');
-        }
-
-        if (!preg_match('#([a-zA-Z0-9\-\.]+):?([0-9]{2,5})?#i', $info['host'])) {
-            throw new InvalidUrl('Invalid host and/or port: ' . $info['host']);
         }
 
         if (empty($info['port'])) {

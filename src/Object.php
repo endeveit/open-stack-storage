@@ -93,19 +93,19 @@ class Object
      * @param  \OpenStackStorage\Container               $container
      * @param  string                                    $name
      * @param  boolean                                   $forceExists
-     * @param  array                                     $objectRecord
+     * @param  array                                     $object
      * @throws \OpenStackStorage\Exceptions\NoSuchObject
      */
-    public function __construct(Container $container, $name = null, $forceExists = false, array &$objectRecord = array())
+    public function __construct(Container $container, $name = null, $forceExists = false, array &$object = array())
     {
         $this->container = $container;
 
-        if (!empty($objectRecord)) {
-            $this->name         = $objectRecord['name'];
-            $this->contentType  = $objectRecord['content_type'];
-            $this->size         = $objectRecord['bytes'];
-            $this->lastModified = $objectRecord['last_modified'];
-            $this->etag         = $objectRecord['hash'];
+        if (!empty($object)) {
+            $this->name         = $object['name'];
+            $this->contentType  = $object['content_type'];
+            $this->size         = $object['bytes'];
+            $this->lastModified = $object['last_modified'];
+            $this->etag         = $object['hash'];
         } else {
             $this->name = $name;
             if (!$this->initialize() && $forceExists) {
@@ -575,6 +575,8 @@ class Object
         }
 
         foreach ($this->metadata as $key => $value) {
+            $key = str_ireplace('X-Container-Meta-', '', $key);
+
             if (strlen($key) > META_NAME_LIMIT) {
                 throw new Exceptions\InvalidMetaName();
             }

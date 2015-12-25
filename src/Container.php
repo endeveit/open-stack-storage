@@ -199,6 +199,26 @@ class Container
     }
 
     /**
+     * Returns number of objects in container.
+     *
+     * @return integer
+     */
+    public function getNbObjects()
+    {
+        return $this->nbObjects;
+    }
+
+    /**
+     * Returns the sum of the sizes of all objects in this container (in bytes).
+     *
+     * @return int
+     */
+    public function getSizeUsed()
+    {
+        return $this->sizeUsed;
+    }
+
+    /**
      * Return the value of the $metadata property.
      *
      * @return array
@@ -214,7 +234,7 @@ class Container
      * Example:
      * <code>
      * $container->updateMetadata(array(
-     *     'X-Container-Meta-Foo' => 'bar',
+     *     'foo' => 'bar',
      * ));
      * </code>
      *
@@ -222,7 +242,15 @@ class Container
      */
     public function updateMetadata(array $metadata)
     {
-        $this->connection->makeRequest(Client::POST, array($this->name), $metadata);
+        $processed = array();
+
+        foreach ($metadata as $k => $v) {
+            $processed[strtolower(str_ireplace('X-Container-Meta-', '', $k))] = $v;
+        }
+
+        $this->connection->makeRequest(Client::POST, array($this->name), $processed);
+
+        $this->metadata = $processed;
     }
 
     /**

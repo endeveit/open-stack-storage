@@ -9,9 +9,9 @@
 namespace OpenStackStorage;
 
 define('CONTAINER_NAME_LIMIT', 256);
-define('OBJECT_NAME_LIMIT',    1024);
-define('META_NAME_LIMIT',      128);
-define('META_VALUE_LIMIT',     256);
+define('OBJECT_NAME_LIMIT', 1024);
+define('META_NAME_LIMIT', 128);
+define('META_VALUE_LIMIT', 256);
 
 /**
  * Manages the connection to the storage system and serves as a factory
@@ -167,6 +167,8 @@ class Connection
      */
     public function getAuthToken()
     {
+        $this->authenticate();
+
         return $this->authToken;
     }
 
@@ -469,7 +471,7 @@ class Connection
      * @param  array  $path
      * @return string
      */
-    public function getPathFromArray(array $path = array())
+    protected function getPathFromArray(array $path = array())
     {
         $tmp = array();
 
@@ -526,9 +528,9 @@ class Connection
      */
     protected function cdnConnect()
     {
-        $info                = Utils::parseUrl($this->cdnUrl);
-        $this->cdnEnabled    = true;
-        $this->cdnClient = new Client(array('timeout' => $this->timeout));
+        $info             = Utils::parseUrl($this->cdnUrl);
+        $this->cdnEnabled = true;
+        $this->cdnClient  = new Client(array('timeout' => $this->timeout));
         $this->cdnClient->setUserAgent($this->userAgent);
         $this->cdnClient->setBaseURL(sprintf(
             '%s://%s:%d',
