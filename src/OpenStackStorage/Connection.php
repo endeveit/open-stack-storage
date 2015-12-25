@@ -142,8 +142,8 @@ class Connection
         // anything) it will automatically set $useServicenet=true
         if (array_key_exists('servicenet', $options)) {
             $this->useServicenet = (boolean) $options['servicenet'];
-        } elseif (array_key_exists('RACKSPACE_SERVICENET', $_ENV)) {
-            $this->useServicenet = true;
+        } else {
+            $this->useServicenet = (boolean) getenv('RACKSPACE_SERVICENET');
         }
 
         if (!empty($options['useragent'])) {
@@ -213,12 +213,12 @@ class Connection
     /**
      * Performs an http request to the storage.
      *
-     * @param string $method name of the method (i.e. GET, PUT, POST, etc)
-     * @param array  $path   list of tokens that will be added to connection
-     *                           URI string
-     * @param array $headers    additional headers
-     * @param array $parameters additional parameters that will be added to the
-     *                           query string
+     * @param  string $method     name of the method (i.e. GET, PUT, POST, etc)
+     * @param  array  $path       list of tokens that will be added to connection
+     *                            URI string
+     * @param  array  $headers    additional headers
+     * @param  array  $parameters additional parameters that will be added to the
+     *                            query string
      * @return array
      */
     public function makeRequest($method, array $path = array(), array $headers = array(), $parameters = array())
@@ -231,9 +231,9 @@ class Connection
     /**
      * Performs an http request to the CDN.
      *
-     * @param string $method name of the method (i.e. GET, PUT, POST, etc)
-     * @param array  $path   list of tokens that will be added to connection
-     *                        URI string
+     * @param  string                                     $method  name of the method (i.e. GET, PUT, POST, etc)
+     * @param  array                                      $path    list of tokens that will be added to connection
+     *                                                             URI string
      * @param  array                                      $headers additional headers
      * @return array
      * @throws \OpenStackStorage\Exceptions\CDNNotEnabled
@@ -597,5 +597,4 @@ class Connection
 
         return self::$listContainersCache[$cacheKey];
     }
-
 }

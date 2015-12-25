@@ -8,10 +8,12 @@
  */
 namespace OpenStackStorage;
 
+use Resty\Resty;
+
 /**
  * HTTP-request client object.
  */
-class Client extends \Resty
+class Client extends Resty
 {
 
     const GET = 'GET';
@@ -60,12 +62,16 @@ class Client extends \Resty
         $headers = null,
         $options = null
     ) {
-        if (null === $options) {
-            $options = array();
-        }
-
         if (null === $headers) {
             $headers = array();
+        } elseif (!is_array($headers)) {
+            $headers = (array) $headers;
+        }
+
+        if (null === $options) {
+            $options = array();
+        } elseif (!is_array($options)) {
+            $options = (array) $options;
         }
 
         if (!array_key_exists('timeout', $options)) {
@@ -132,5 +138,4 @@ class Client extends \Resty
 
         return $resp;
     }
-
 }
