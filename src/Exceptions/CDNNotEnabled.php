@@ -9,9 +9,8 @@
 namespace OpenStackStorage\Exceptions;
 
 /**
- * Raised when an unspecified authentication error has occurred.
+ * CDN is not enabled for this account.
  */
-class AuthenticationError extends Error
+class CDNNotEnabled extends Error
 {
-
 }

@@ -9,9 +9,8 @@
 namespace OpenStackStorage\Exceptions;
 
 /**
- * Not a valid url for use with this software.
+ * Raised for invalid storage object names.
  */
-class InvalidUrl extends Error
+class InvalidObjectName extends Error
 {
-
 }

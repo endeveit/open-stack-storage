@@ -231,10 +231,10 @@ class Object
      * return it as a string. However, if a \SplFileObject object is passed
      * in $buffer, the response will be written to it instead.
      *
-     * @param integer $size combined with offset, defines the length
-     *                                of data to be read
-     * @param integer $offset combined with size, defines the start
-     *                                location to be read
+     * @param  integer        $size    combined with offset, defines the length
+     *                                 of data to be read
+     * @param  integer        $offset  combined with size, defines the start
+     *                                 location to be read
      * @param  array          $headers
      * @param  \SplFileObject $buffer
      * @return null|string
@@ -588,5 +588,4 @@ class Object
 
         return array_merge($this->headers, $headers);
     }
-
 }

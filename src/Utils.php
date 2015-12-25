@@ -54,5 +54,4 @@ class Utils
             'path'   => !empty($info['path']) ? trim($info['path'], '/') : '',
         );
     }
-
 }

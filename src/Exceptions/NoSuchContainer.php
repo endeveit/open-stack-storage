@@ -9,9 +9,8 @@
 namespace OpenStackStorage\Exceptions;
 
 /**
- * Raised on a non-existent object.
+ * Raised on a non-existent container.
  */
-class NoSuchObject extends Error
+class NoSuchContainer extends Error
 {
-
 }

@@ -9,9 +9,8 @@
 namespace OpenStackStorage\Exceptions;
 
 /**
- * Raised on a failure to authenticate.
+ * Raised for invalid storage object names.
  */
-class AuthenticationFailed extends Error
+class InvalidContainerName extends Error
 {
-
 }

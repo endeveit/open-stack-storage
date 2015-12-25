@@ -9,9 +9,8 @@
 namespace OpenStackStorage\Exceptions;
 
 /**
- * Raised for invalid storage object names.
+ * Raised on a non-existent object.
  */
-class InvalidContainerName extends Error
+class NoSuchObject extends Error
 {
-
 }

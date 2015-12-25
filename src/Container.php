@@ -605,5 +605,4 @@ class Container
 
         return self::$listObjectsCache[$cacheKey];
     }
-
 }

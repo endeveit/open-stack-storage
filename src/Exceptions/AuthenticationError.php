@@ -9,9 +9,8 @@
 namespace OpenStackStorage\Exceptions;
 
 /**
- * Base class for all errors and exceptions in OpenStackStorage namespace.
+ * Raised when an unspecified authentication error has occurred.
  */
-class Error extends \Exception
+class AuthenticationError extends Error
 {
-
 }

@@ -26,5 +26,4 @@ class ContainerExists extends Error
     {
         parent::__construct('Container ' . $containerName . ' already exists');
     }
-
 }

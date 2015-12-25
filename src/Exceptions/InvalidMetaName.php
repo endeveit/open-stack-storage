@@ -9,9 +9,8 @@
 namespace OpenStackStorage\Exceptions;
 
 /**
- * Raised for invalid storage object names.
+ * Raised for invalid metadata names.
  */
-class InvalidObjectName extends Error
+class InvalidMetaName extends Error
 {
-
 }

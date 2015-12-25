@@ -13,5 +13,4 @@ namespace OpenStackStorage\Exceptions;
  */
 class ContainerNotPublic extends Error
 {
-
 }

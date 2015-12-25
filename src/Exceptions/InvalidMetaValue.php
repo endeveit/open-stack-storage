@@ -9,9 +9,8 @@
 namespace OpenStackStorage\Exceptions;
 
 /**
- * CDN is not enabled for this account.
+ * Raised for invalid metadata value.
  */
-class CDNNotEnabled extends Error
+class InvalidMetaValue extends Error
 {
-
 }

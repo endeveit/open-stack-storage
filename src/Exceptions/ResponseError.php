@@ -78,5 +78,4 @@ class ResponseError extends Error
     {
         return sprintf('%d: %s', $this->getCode(), $this->getMessage());
     }
-
 }

@@ -93,5 +93,4 @@ class Headers implements \ArrayAccess, \IteratorAggregate
     {
         return new \ArrayObject($this->headers);
     }
-
 }

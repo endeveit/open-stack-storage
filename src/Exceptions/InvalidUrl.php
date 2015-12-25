@@ -9,9 +9,8 @@
 namespace OpenStackStorage\Exceptions;
 
 /**
- * Raised for invalid metadata value.
+ * Not a valid url for use with this software.
  */
-class InvalidMetaValue extends Error
+class InvalidUrl extends Error
 {
-
 }

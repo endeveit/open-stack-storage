@@ -9,9 +9,8 @@
 namespace OpenStackStorage\Exceptions;
 
 /**
- * Raised on a non-existent container.
+ * Raised on a failure to authenticate.
  */
-class NoSuchContainer extends Error
+class AuthenticationFailed extends Error
 {
-
 }

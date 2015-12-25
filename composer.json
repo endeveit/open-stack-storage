@@ -17,6 +17,6 @@
         "resty/resty": "@stable"
     },
     "autoload": {
-        "psr-0": { "OpenStackStorage": "src/" }
+        "psr-4": { "OpenStackStorage\\": "src" }
     }
 }

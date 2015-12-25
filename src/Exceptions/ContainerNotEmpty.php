@@ -29,5 +29,4 @@ class ContainerNotEmpty extends Error
             $previous
         );
     }
-
 }
