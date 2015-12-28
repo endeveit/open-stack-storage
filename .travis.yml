@@ -33,5 +33,5 @@ script:
   - php vendor/bin/phpcs --standard=PSR2 --encoding=utf-8 src/
   - php vendor/bin/phpunit -c phpunit.xml --coverage-text --coverage-clover ./build/logs/clover.xml tests/
 
-after_script:
+after_success:
   - php vendor/bin/coveralls
