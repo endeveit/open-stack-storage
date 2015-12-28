@@ -1,5 +1,6 @@
 {
     "name": "endeveit/open-stack-storage",
+    "version": "1.0",
     "type": "library",
     "description": "The port of python-cloudfiles library to work with OpenStack Object Storage",
     "keywords": ["openstack", "storage", "resty", "cloudfiles", "http", "rackspace"],
