@@ -108,7 +108,7 @@ class Client extends Resty
      * Overridden method to decode JSON to array instead of stdClass.
      *
      * @param  string        $resp
-     * @return object|string
+     * @return Obj|string
      */
     protected function processResponseBody($resp)
     {

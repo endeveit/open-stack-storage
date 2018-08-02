@@ -15,15 +15,15 @@ class ObjectTest extends Base
     protected $objName = 'ipsum.txt';
 
     /**
-     * @see \OpenStackStorage\Object::getName()
-     * @see \OpenStackStorage\Object::getContentType()
-     * @see \OpenStackStorage\Object::getSize()
+     * @see \OpenStackStorage\Obj::getName()
+     * @see \OpenStackStorage\Obj::getContentType()
+     * @see \OpenStackStorage\Obj::getSize()
      */
     public function testObject()
     {
         $object = self::$connection->getContainer($this->containerName)->getObject($this->objName);
 
-        $this->assertInstanceOf('\OpenStackStorage\Object', $object);
+        $this->assertInstanceOf('\OpenStackStorage\Obj', $object);
         $this->assertEquals($this->objName, $object->getName());
         $this->assertEquals('text/plain', $object->getContentType());
         $this->assertEquals(

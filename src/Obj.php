@@ -11,7 +11,7 @@ namespace OpenStackStorage;
 /**
  * Storage data representing an object, (metadata and data).
  */
-class Object
+class Obj
 {
 
     /**

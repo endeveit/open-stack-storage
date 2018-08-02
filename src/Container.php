@@ -528,33 +528,33 @@ class Container
      * new one
      *
      * @param  string                   $name
-     * @return \OpenStackStorage\Object
+     * @return \OpenStackStorage\Obj
      */
     public function createObject($name)
     {
-        return new Object($this, $name);
+        return new Obj($this, $name);
     }
 
     /**
      * Return an \OpenStackStorage\Object instance for an existing storage object.
      *
      * @param  string                                    $name
-     * @return \OpenStackStorage\Object
+     * @return \OpenStackStorage\Obj
      * @throws \OpenStackStorage\Exceptions\NoSuchObject
      */
     public function getObject($name)
     {
-        return new Object($this, $name, true);
+        return new Obj($this, $name, true);
     }
 
     /**
      * Permanently remove a storage object.
      *
-     * @param string|\OpenStackStorage\Object $name
+     * @param string|\OpenStackStorage\Obj $name
      */
     public function deleteObject($name)
     {
-        if (is_object($name) && $name instanceof Object) {
+        if (is_object($name) && $name instanceof Obj) {
             $name = $name->getName();
         }
 
@@ -566,14 +566,14 @@ class Container
      *
      * @see \OpenStackStorage\Container::$allowedParameters
      * @param  array                      $parameters
-     * @return \OpenStackStorage\Object[]
+     * @return \OpenStackStorage\Obj[]
      */
     public function getObjects(array $parameters = array())
     {
         $objects = array();
 
         foreach ($this->getObjectsInfo($parameters) as $record) {
-            $objects[] = new Object($this, null, false, $record);
+            $objects[] = new Obj($this, null, false, $record);
         }
 
         return $objects;
